@@ -1,0 +1,19 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Compile & Analyze Code
+      run: mvn -B -e -U -ntp clean verify
