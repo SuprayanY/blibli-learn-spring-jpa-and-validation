@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.id.uuid.StandardRandomStrategy;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Version;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
@@ -24,7 +25,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "employees")
+@Entity
+@Table(name = "employees")
 public class Employee {
 
   @Id
@@ -48,5 +50,9 @@ public class Employee {
 
   @Column
   private BigInteger salary;
+
+  @Version
+  @Column
+  private Long version;
 
 }

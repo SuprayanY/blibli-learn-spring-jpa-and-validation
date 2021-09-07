@@ -19,10 +19,10 @@ public class DepartmentExistsByIdValidator implements ConstraintValidator<Depart
 
   @Override
   public boolean isValid(String id, ConstraintValidatorContext context) {
-    if (StringUtils.hasText(id)) {
-      return departmentRepository.existsById(id);
+    if (!StringUtils.hasText(id)) {
+      return true;
     }
-    return true;
+    return departmentRepository.existsById(id);
   }
 
 }

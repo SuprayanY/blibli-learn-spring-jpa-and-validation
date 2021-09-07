@@ -19,10 +19,10 @@ public class EmployeeExistsByIdValidator implements ConstraintValidator<Employee
 
   @Override
   public boolean isValid(String id, ConstraintValidatorContext context) {
-    if (StringUtils.hasText(id)) {
-      return employeeRepository.existsById(id);
+    if (!StringUtils.hasText(id)) {
+      return true;
     }
-    return true;
+    return employeeRepository.existsById(id);
   }
 
 }

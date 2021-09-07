@@ -2,25 +2,20 @@ package com.blibli.future.data.web.controller;
 
 import com.blibli.future.data.entity.Department;
 import com.blibli.future.data.entity.Employee;
-import com.blibli.future.data.repository.DepartmentRepository;
-import com.blibli.future.data.repository.EmployeeRepository;
+import com.blibli.future.data.service.EmployeeService;
 import com.blibli.future.data.vdalidation.EmployeeExists;
 import com.blibli.future.data.web.model.Response;
 import com.blibli.future.data.web.model.department.DepartmentResponse;
 import com.blibli.future.data.web.model.employee.CreateEmployeeRequest;
+import com.blibli.future.data.web.model.employee.EmployeeFilter;
 import com.blibli.future.data.web.model.employee.EmployeeResponse;
 import com.blibli.future.data.web.model.employee.UpdateEmployeeRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -39,28 +33,25 @@ import java.util.List;
  * @since 0.0.1
  */
 @Api
+@Validated
 @RestController
 public class EmployeeController {
 
-  @Autowired
-  private DepartmentRepository departmentRepository;
+  private final EmployeeService employeeService;
 
-  @Autowired
-  private EmployeeRepository employeeRepository;
+  public EmployeeController(EmployeeService employeeService) {
+    this.employeeService = employeeService;
+  }
 
   @ApiOperation("Create an employee")
   @PostMapping(path = "/api/employees",
                consumes = MediaType.APPLICATION_JSON_VALUE,
                produces = MediaType.APPLICATION_JSON_VALUE)
   public Response<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
-    Department department = departmentRepository.getById(request.getDepartmentId());
-    Employee newEmployee = Employee.builder()
-        .department(department)
-        .build();
-    BeanUtils.copyProperties(request, newEmployee);
-    newEmployee = employeeRepository.save(newEmployee);
+    Employee newEmployee = employeeService.create(request);
     EmployeeResponse employeeResponse = convertToResponse(newEmployee);
     return Response.<EmployeeResponse>builder()
+        .status(HttpStatus.OK.value())
         .data(employeeResponse)
         .build();
   }
@@ -68,30 +59,27 @@ public class EmployeeController {
   @ApiOperation("Find all employees")
   @GetMapping(path = "/api/employees",
               produces = MediaType.APPLICATION_JSON_VALUE)
-  public Response<List<EmployeeResponse>> findAll(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(required = false) String name) {
-    Pageable pageable = PageRequest.of(page, size);
-    Employee example = new Employee();
-    if (StringUtils.hasText(name)) {
-      example.setName(name);
-    }
-    Page<Employee> employeePage = employeeRepository.findAll(Example.of(example), pageable);
-    List<EmployeeResponse> employeeResponses = employeePage.map(this::convertToResponse).getContent();
+  public Response<List<EmployeeResponse>> findAll(@Valid EmployeeFilter employeeFilter) {
+    Page<Employee> employeePage = employeeService.findAll(employeeFilter);
+    List<EmployeeResponse> employeeResponses = employeePage.map(this::convertToResponse)
+        .getContent();
+    Response.Pagination pagination = convertToResponse(employeePage);
     return Response.<List<EmployeeResponse>>builder()
+        .status(HttpStatus.OK.value())
         .data(employeeResponses)
-        .pagination(convertToPagination(employeePage))
+        .pagination(pagination)
         .build();
   }
 
   @ApiOperation("Find an employee")
-  @Validated
   @GetMapping(path = "/api/employees/{id}",
               produces = MediaType.APPLICATION_JSON_VALUE)
   public Response<EmployeeResponse> findById(@EmployeeExists @PathVariable String id) {
-    Employee employee = employeeRepository.getById(id);
+    Employee employee = employeeService.findById(id);
+    EmployeeResponse employeeResponse = convertToResponse(employee);
     return Response.<EmployeeResponse>builder()
-        .data(convertToResponse(employee))
+        .status(HttpStatus.OK.value())
+        .data(employeeResponse)
         .build();
   }
 
@@ -101,15 +89,11 @@ public class EmployeeController {
               produces = MediaType.APPLICATION_JSON_VALUE)
   public Response<EmployeeResponse> update(@EmployeeExists @PathVariable String id,
                                            @Valid @RequestBody UpdateEmployeeRequest request) {
-    Employee employee = employeeRepository.getById(id);
-    BeanUtils.copyProperties(request, employee);
-    if (!request.getDepartmentId().equals(employee.getDepartment().getId())) {
-      Department department = departmentRepository.getById(request.getDepartmentId());
-      employee.setDepartment(department);
-    }
-    employee = employeeRepository.save(employee);
+    Employee employee = employeeService.update(id, request);
+    EmployeeResponse employeeResponse = convertToResponse(employee);
     return Response.<EmployeeResponse>builder()
-        .data(convertToResponse(employee))
+        .status(HttpStatus.OK.value())
+        .data(employeeResponse)
         .build();
   }
 
@@ -117,7 +101,7 @@ public class EmployeeController {
   @DeleteMapping(path = "/api/employees/{id}",
                  produces = MediaType.APPLICATION_JSON_VALUE)
   public Response<Void> delete(@EmployeeExists @PathVariable String id) {
-    employeeRepository.deleteById(id);
+    employeeService.delete(id);
     return Response.<Void>builder()
         .status(HttpStatus.OK.value())
         .build();
@@ -138,7 +122,7 @@ public class EmployeeController {
     return departmentResponse;
   }
 
-  private Response.Pagination convertToPagination(Page<?> page) {
+  private Response.Pagination convertToResponse(Page<?> page) {
     return Response.Pagination.builder()
         .page(page.getNumber())
         .size((long) page.getSize())

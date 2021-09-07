@@ -18,8 +18,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class Response<T> {
 
-  @Builder.Default
-  private int status = 200;
+  private Integer status;
 
   private T data;
 
@@ -33,7 +32,7 @@ public class Response<T> {
   @AllArgsConstructor
   public static class Pagination {
 
-    private int page;
+    private Integer page;
 
     private Long size;
 

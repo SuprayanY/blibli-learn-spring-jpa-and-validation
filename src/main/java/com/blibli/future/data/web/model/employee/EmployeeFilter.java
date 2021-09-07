@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Min;
+
 /**
  * @author Suprayan Yapura
  * @since 0.0.1
@@ -18,5 +20,11 @@ public class EmployeeFilter {
   private String name;
 
   private String department;
+
+  @Min(value = 0, message = "MIN_0")
+  private Integer page = 0;
+
+  @Min(value = 1, message = "MIN_1")
+  private Integer size = 5;
 
 }

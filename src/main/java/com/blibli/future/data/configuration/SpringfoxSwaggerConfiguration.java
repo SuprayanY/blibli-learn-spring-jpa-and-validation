@@ -40,7 +40,7 @@ public class SpringfoxSwaggerConfiguration implements WebMvcConfigurer {
 
   private ApiInfo buildApiInfo () {
     return new ApiInfoBuilder()
-        .title("Future 2021 - Spring Data")
+        .title("Spring Data JPA & Bean Validation")
         .version("0.0.1")
         .build();
   }
