@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -26,7 +27,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "employees")
+@Table(name = "employees",
+       indexes = {
+        @Index(name = "idx_name_departmentId",
+               columnList = "employee_name, department_id",
+               unique = false)
+        // @Index(name = "uniqueIdx_employeeId", // index for primary key is auto created, so this one is not needed
+        //       columnList = "employee_id",
+        //       unique = true)
+       })
 public class Employee {
 
   /**

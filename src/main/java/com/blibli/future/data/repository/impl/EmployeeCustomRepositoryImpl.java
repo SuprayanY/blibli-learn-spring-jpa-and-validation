@@ -33,6 +33,23 @@ public class EmployeeCustomRepositoryImpl implements EmployeeCustomRepository {
 
   @Override
   public Page<Employee> findByFilter(EmployeeFilter filter) {
+
+    /**
+     * The idea is:
+     *
+     * SELECT e.*
+     * FROM employees e
+     * JOIN departments d ON d.id = e.department_id
+     * WHERE
+     *   LOWER(e.name) LIKE '%{nameKeyword}%' -- if nameKeyword is given
+     *   AND
+     *   ( -- if departmentKeyword is given
+     *     LOWER(d.id) = {departmentKeyword}
+     *     OR
+     *     LOWER(d.name) = '%{departmentKeyword}%'
+     *   )
+     */
+
     // Paging data
     Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
