@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface DepartmentRepository extends JpaRepository<Department, String> {
 
+  // The query will be automatically built during the compilation.
+  Department findByName(String name);
+
 }

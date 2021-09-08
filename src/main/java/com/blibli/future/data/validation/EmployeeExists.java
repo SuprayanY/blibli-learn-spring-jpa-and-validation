@@ -1,6 +1,6 @@
-package com.blibli.future.data.vdalidation;
+package com.blibli.future.data.validation;
 
-import com.blibli.future.data.vdalidation.validator.EmployeeExistsByIdValidator;
+import com.blibli.future.data.validation.validator.EmployeeExistsByIdValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

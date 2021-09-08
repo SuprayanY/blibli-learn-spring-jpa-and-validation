@@ -1,6 +1,6 @@
 package com.blibli.future.data.web.model.employee;
 
-import com.blibli.future.data.vdalidation.DepartmentExists;
+import com.blibli.future.data.validation.DepartmentExists;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

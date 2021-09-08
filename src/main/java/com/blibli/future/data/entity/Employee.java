@@ -29,6 +29,9 @@ import java.time.LocalDate;
 @Table(name = "employees")
 public class Employee {
 
+  /**
+   * Available identifier generators: {@link org.hibernate.id.factory.internal.DefaultIdentifierGeneratorFactory}
+   */
   @Id
   @GeneratedValue(generator = "uuid2")
   @GenericGenerator(name = "uuid2",

@@ -2,6 +2,7 @@ package com.blibli.future.data.web.controller;
 
 import com.blibli.future.data.web.model.Response;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,12 +24,14 @@ public class ErrorController {
   /**
    * Read: https://www.baeldung.com/spring-boot-bean-validation#the-exceptionhandler-annotation
    *
+   * https://www.baeldung.com
+   *
    * @param ex  the exception to be handled.
    * @return error response.
    */
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public Response<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+  @ExceptionHandler(BindException.class)
+  public Response<Void> handleMethodArgumentNotValidException(BindException ex) {
     Map<String, List<String>> errors = new HashMap<>();
     ex.getBindingResult().getFieldErrors().forEach(error -> {
       String fieldName = error.getField();

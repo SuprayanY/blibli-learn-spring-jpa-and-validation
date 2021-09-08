@@ -1,11 +1,17 @@
-package com.blibli.future.data.configuration;
+package com.blibli.future.data.web.controller;
 
 import com.blibli.future.data.entity.Department;
 import com.blibli.future.data.entity.Employee;
 import com.blibli.future.data.repository.DepartmentRepository;
 import com.blibli.future.data.repository.EmployeeRepository;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.annotation.Configuration;
+import com.blibli.future.data.web.model.Response;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -15,24 +21,41 @@ import java.time.Month;
  * @author Suprayan Yapura
  * @since 0.0.1
  */
-@Configuration
-public class DataInitializationConfiguration implements InitializingBean {
+@Api
+@RestController
+public class HelperController {
 
   private final DepartmentRepository departmentRepository;
 
   private final EmployeeRepository employeeRepository;
 
-  public DataInitializationConfiguration(DepartmentRepository departmentRepository,
-                                         EmployeeRepository employeeRepository) {
+  public HelperController(DepartmentRepository departmentRepository,
+                          EmployeeRepository employeeRepository) {
     this.departmentRepository = departmentRepository;
     this.employeeRepository = employeeRepository;
   }
 
-  @Override
-  public void afterPropertiesSet() {
+  @ApiOperation("Populate employee data")
+  @PostMapping(path = "/api/helper/employees/_populate",
+               produces = MediaType.APPLICATION_JSON_VALUE)
+  public Response<Void> populateEmployeeData() {
     initializeItDepartmentEmployeeData();
     initializeFinanceDepartmentEmployeeData();
     initializeOperationDepartmentEmployeeData();
+    return Response.<Void>builder()
+        .status(HttpStatus.OK.value())
+        .build();
+  }
+
+  @ApiOperation("Clear employee data")
+  @DeleteMapping(path = "/api/helper/employees/_clear",
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+  public Response<Void> clearEmployeeData() {
+    departmentRepository.deleteAll();
+    employeeRepository.deleteAll();
+    return Response.<Void>builder()
+        .status(HttpStatus.OK.value())
+        .build();
   }
 
   private void initializeItDepartmentEmployeeData () {

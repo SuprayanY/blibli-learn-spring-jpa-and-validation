@@ -3,7 +3,7 @@ package com.blibli.future.data.web.controller;
 import com.blibli.future.data.entity.Department;
 import com.blibli.future.data.entity.Employee;
 import com.blibli.future.data.service.EmployeeService;
-import com.blibli.future.data.vdalidation.EmployeeExists;
+import com.blibli.future.data.validation.EmployeeExists;
 import com.blibli.future.data.web.model.Response;
 import com.blibli.future.data.web.model.department.DepartmentResponse;
 import com.blibli.future.data.web.model.employee.CreateEmployeeRequest;
