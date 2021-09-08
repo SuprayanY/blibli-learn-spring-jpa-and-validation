@@ -16,4 +16,22 @@ jobs:
       with:
         fetch-depth: 0
     - name: Compile & Analyze Code
-      run: mvn -B -e -U -ntp clean verify
+      run: >
+        mvn -B -e -U -ntp
+        clean
+        org.jacoco:jacoco-maven-plugin:prepare-agent
+        package
+        org.jacoco:jacoco-maven-plugin:report
+        verify
+    - name: SonarCloud Scan
+      run: >
+        mvn -B -e -ntp sonar:sonar
+        -Dsonar.host.url=$SONAR_HOST
+        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.organization=suprayan
+        -Dsonar.projectKey=SuprayanY_blibli-learn-spring-jpa-and-validation
+        -Dsonar.verbose=true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST: https://sonarcloud.io
