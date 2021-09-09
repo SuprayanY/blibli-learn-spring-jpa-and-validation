@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Suprayan Yapura
@@ -32,13 +33,18 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+//  @Transactional(rollbackFor = { Exception.class }) // rollback transaction should Exception.class is thrown
   public Employee create(CreateEmployeeRequest request) {
     Department department = departmentRepository.getById(request.getDepartmentId());
     Employee newEmployee = Employee.builder()
         .department(department)
         .build();
     BeanUtils.copyProperties(request, newEmployee);
-    return employeeRepository.save(newEmployee);
+    newEmployee = employeeRepository.save(newEmployee);
+//    if (true) {
+//      throw new RuntimeException();
+//    }
+    return newEmployee;
   }
 
   @Override

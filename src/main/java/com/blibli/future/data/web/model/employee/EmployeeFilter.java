@@ -21,10 +21,10 @@ public class EmployeeFilter {
 
   private String department;
 
-  @Min(value = 0, message = "MIN_0")
+  @Min(value = 0, message = "Min_0")
   private Integer page = 0;
 
-  @Min(value = 1, message = "MIN_1")
+  @Min(value = 1, message = "Min_1")
   private Integer size = 5;
 
 }

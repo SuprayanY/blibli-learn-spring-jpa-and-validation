@@ -34,7 +34,7 @@ public class CreateEmployeeRequest {
   @DepartmentExists
   private String departmentId;
 
-  @Min(value = 0, message = "MIN_0")
+  @Min(value = 0, message = "Min_0")
   private BigInteger salary;
 
 }

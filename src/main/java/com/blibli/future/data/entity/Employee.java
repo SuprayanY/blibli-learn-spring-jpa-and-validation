@@ -29,12 +29,12 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "employees",
        indexes = {
-        @Index(name = "idx_name_departmentId",
-               columnList = "employee_name, department_id",
-               unique = false)
-        // @Index(name = "uniqueIdx_employeeId", // index for primary key is auto created, so this one is not needed
-        //       columnList = "employee_id",
-        //       unique = true)
+           @Index(name = "idx_name_departmentId",
+                  columnList = "employee_name, department_id",
+                  unique = false),
+//           @Index(name = "uniqueIdx_employeeId", // index for primary key is auto created, so this one is not needed
+//                  columnList = "employee_id",
+//                  unique = true)
        })
 public class Employee {
 

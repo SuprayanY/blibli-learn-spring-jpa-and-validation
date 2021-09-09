@@ -53,10 +53,11 @@ public class EmployeeCustomRepositoryImpl implements EmployeeCustomRepository {
     // Paging data
     Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
-    // Select query
+    // Select query (Note: this is using HQL, not SQL)
+    // https://www.tutorialspoint.com/hibernate/hibernate_query_language.htm
     String contentQueryString = "SELECT e FROM Employee e JOIN Department d ON d.id = e.department";
 
-    // Count query
+    // Count query (Note: this is using HQL, not SQL)
     String countQueryString = "SELECT COUNT(1) FROM Employee e JOIN Department d ON d.id = e.department";
 
     // Criteria list for the WHERE conditions
@@ -71,7 +72,7 @@ public class EmployeeCustomRepositoryImpl implements EmployeeCustomRepository {
     }
 
     if (StringUtils.hasText(filter.getDepartment())) {
-      // For multi conditions, enclosed with braces
+      // For multi conditions, enclose with braces
       criteriaList.add("(LOWER(d.id) = :department OR LOWER(d.name) LIKE :departmentContaining)");
       parameters.put("department", filter.getDepartment().toLowerCase());
       parameters.put("departmentContaining", String.format("%%%s%%", filter.getDepartment().toLowerCase()));

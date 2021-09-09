@@ -113,7 +113,7 @@ class EmployeeControllerTest {
     assertTrue(response.getErrors().get("name").contains("Blank"));
     assertTrue(response.getErrors().get("birthdate").contains("Null"));
     assertTrue(response.getErrors().get("departmentId").contains("NotExist"));
-    assertTrue(response.getErrors().get("salary").contains("MIN_0"));
+    assertTrue(response.getErrors().get("salary").contains("Min_0"));
   }
 
   @Test
@@ -171,8 +171,8 @@ class EmployeeControllerTest {
         .getResponseBody();
     assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     assertNull(response.getData());
-    assertTrue(response.getErrors().get("page").contains("MIN_0"));
-    assertTrue(response.getErrors().get("size").contains("MIN_1"));
+    assertTrue(response.getErrors().get("page").contains("Min_0"));
+    assertTrue(response.getErrors().get("size").contains("Min_1"));
 
   }
 
