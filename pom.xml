@@ -16,6 +16,7 @@
   <properties>
     <java.version>1.8</java.version>
     <sonar.coverage.exclusions>
+      **/com/blibli/future/data/SpringDataApplication.java,
       **/com/blibli/future/data/entity/**,
       **/com/blibli/future/data/web/controller/HelperController.java,
       **/com/blibli/future/data/web/model/**

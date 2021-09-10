@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EmployeeControllerTest {
 
   private static final String DEPARTMENT_NAME = "IT";
+  private static final String DEPARTMENT_NAME_2 = "Finance";
   private static final String EMPLOYEE_NAME = "Warren";
   private static final String EMPLOYEE_NEW_NAME = "Warren James";
   private static final LocalDate BIRTHDATE = LocalDate.of(1990, Month.MAY, 2);
@@ -321,6 +322,40 @@ class EmployeeControllerTest {
     assertEquals(BIRTHDATE, response.getData().getBirthdate());
     assertEquals(department.getId(), response.getData().getDepartment().getId());
     assertEquals(DEPARTMENT_NAME, response.getData().getDepartment().getName());
+    assertEquals(SALARY, response.getData().getSalary());
+  }
+
+  @Test
+  void updateWithDifferentDepartmentThenUpdated() {
+    Department department = departmentRepository.findByName(DEPARTMENT_NAME);
+    Department department2 = departmentRepository.save(Department.builder()
+        .name(DEPARTMENT_NAME_2)
+        .build());
+    Employee employee = employeeRepository.save(Employee.builder()
+        .name(EMPLOYEE_NAME)
+        .birthdate(BIRTHDATE)
+        .department(department)
+        .salary(SALARY)
+        .build());
+    Response<EmployeeResponse> response = client.put()
+        .uri("/api/employees/{id}", employee.getId())
+        .body(BodyInserters.fromValue(CreateEmployeeRequest.builder()
+            .name(EMPLOYEE_NEW_NAME)
+            .birthdate(BIRTHDATE)
+            .departmentId(department2.getId())
+            .salary(SALARY)
+            .build()))
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(new ParameterizedTypeReference<Response<EmployeeResponse>>() {})
+        .returnResult()
+        .getResponseBody();
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertNull(response.getErrors());
+    assertEquals(EMPLOYEE_NEW_NAME, response.getData().getName());
+    assertEquals(BIRTHDATE, response.getData().getBirthdate());
+    assertEquals(department2.getId(), response.getData().getDepartment().getId());
+    assertEquals(DEPARTMENT_NAME_2, response.getData().getDepartment().getName());
     assertEquals(SALARY, response.getData().getSalary());
   }
 
