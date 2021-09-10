@@ -33,17 +33,19 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-//  @Transactional(rollbackFor = { Exception.class }) // rollback transaction should Exception.class is thrown
-  public Employee create(CreateEmployeeRequest request) {
+  // rollback transaction should Exception.class (or any subclass) is thrown
+  @Transactional(rollbackFor = { Exception.class })
+  public Employee create(CreateEmployeeRequest request, boolean throwException) {
     Department department = departmentRepository.getById(request.getDepartmentId());
     Employee newEmployee = Employee.builder()
         .department(department)
         .build();
     BeanUtils.copyProperties(request, newEmployee);
     newEmployee = employeeRepository.save(newEmployee);
-//    if (true) {
-//      throw new RuntimeException();
-//    }
+    if (throwException) {
+      log.info("Employee should not be committed into database: {}", newEmployee);
+      throw new RuntimeException("Exception to try @Transactional annotation.");
+    }
     return newEmployee;
   }
 

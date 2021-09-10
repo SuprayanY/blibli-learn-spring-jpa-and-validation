@@ -17,8 +17,13 @@
     <java.version>1.8</java.version>
     <sonar.coverage.exclusions>
       **/com/blibli/future/data/entity/**,
+      **/com/blibli/future/data/web/controller/HelperController.java,
       **/com/blibli/future/data/web/model/**
     </sonar.coverage.exclusions>
+    <sonar.cpd.exclusions>
+      **/com/blibli/future/data/entity/**,
+      **/com/blibli/future/data/web/model/**
+    </sonar.cpd.exclusions>
   </properties>
   <dependencies>
     <!-- Spring Boot Starters: https://docs.spring.io/spring-boot/docs/2.5.0/reference/htmlsingle/#using.build-systems.starters -->

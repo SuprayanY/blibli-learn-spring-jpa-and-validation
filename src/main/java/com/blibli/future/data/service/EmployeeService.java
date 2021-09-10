@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
  */
 public interface EmployeeService {
 
-  Employee create(CreateEmployeeRequest request);
+  Employee create(CreateEmployeeRequest request, boolean throwException);
 
   Page<Employee> findAll(EmployeeFilter filter);
 

@@ -1,9 +1,9 @@
 package com.blibli.future.data.web.controller;
 
 import com.blibli.future.data.web.model.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,6 +18,7 @@ import java.util.Map;
  * @author Suprayan Yapura
  * @since 0.0.1
  */
+@Slf4j
 @RestControllerAdvice
 public class ErrorController {
 
@@ -57,6 +58,17 @@ public class ErrorController {
     });
     return Response.<Void>builder()
         .status(HttpStatus.BAD_REQUEST.value())
+        .errors(errors)
+        .build();
+  }
+
+  @ExceptionHandler(Exception.class)
+  public Response<Void> handleException(Exception ex) {
+    Map<String, List<String>> errors = new HashMap<>();
+    errors.computeIfAbsent("default", s -> new ArrayList<>()).add(ex.getMessage());
+    log.error("Something went wrong.", ex);
+    return Response.<Void>builder()
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
         .errors(errors)
         .build();
   }

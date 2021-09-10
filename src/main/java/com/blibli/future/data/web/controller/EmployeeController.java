@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -47,8 +48,9 @@ public class EmployeeController {
   @PostMapping(path = "/api/employees",
                consumes = MediaType.APPLICATION_JSON_VALUE,
                produces = MediaType.APPLICATION_JSON_VALUE)
-  public Response<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request) {
-    Employee newEmployee = employeeService.create(request);
+  public Response<EmployeeResponse> create(@Valid @RequestBody CreateEmployeeRequest request,
+                                           @RequestParam(defaultValue = "false") boolean throwException) {
+    Employee newEmployee = employeeService.create(request, throwException);
     EmployeeResponse employeeResponse = convertToResponse(newEmployee);
     return Response.<EmployeeResponse>builder()
         .status(HttpStatus.OK.value())

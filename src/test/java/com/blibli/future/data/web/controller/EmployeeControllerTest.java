@@ -8,6 +8,7 @@ import com.blibli.future.data.repository.EmployeeRepository;
 import com.blibli.future.data.web.model.Response;
 import com.blibli.future.data.web.model.employee.CreateEmployeeRequest;
 import com.blibli.future.data.web.model.employee.EmployeeResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,12 +62,18 @@ class EmployeeControllerTest {
         .build());
   }
 
+  @AfterEach
+  void tearDown() {
+    employeeRepository.deleteAll();
+    departmentRepository.deleteAll();
+  }
+
   @Value("${spring.datasource.url}")
   private String datasourceUrl;
 
   @Test
-  void test() {
-    System.out.println(datasourceUrl);
+  void checkCurrentlyUsedDatabase() {
+    System.out.format("Currently used database: %s\n", datasourceUrl);
   }
 
   @Test
@@ -117,6 +124,30 @@ class EmployeeControllerTest {
   }
 
   @Test
+  void createButExceptionIsThrownThenEmployeeIsNotCreated() {
+    Department department = departmentRepository.findByName(DEPARTMENT_NAME);
+    Response<EmployeeResponse> response = client.post()
+        .uri(uriBuilder -> uriBuilder.path("/api/employees")
+            .queryParam("throwException", true)
+            .build())
+        .body(BodyInserters.fromValue(CreateEmployeeRequest.builder()
+            .name(EMPLOYEE_NAME)
+            .birthdate(BIRTHDATE)
+            .departmentId(department.getId())
+            .salary(SALARY)
+            .build()))
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(new ParameterizedTypeReference<Response<EmployeeResponse>>() {})
+        .returnResult()
+        .getResponseBody();
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatus());
+    assertNull(response.getData());
+    assertTrue(response.getErrors().get("default").contains("Exception to try @Transactional annotation."));
+    assertEquals(0, employeeRepository.count());
+  }
+
+  @Test
   void findAllWithValidRequestThenSuccess() {
     Department department = departmentRepository.findByName(DEPARTMENT_NAME);
     Department financeDepartment = departmentRepository.save(Department.builder()
@@ -154,6 +185,44 @@ class EmployeeControllerTest {
     assertEquals(2, response.getData().size());
     assertEquals("IT Employee 0", response.getData().get(0).getName());
     assertEquals("IT Employee 1", response.getData().get(1).getName());
+  }
+
+  @Test
+  void findAllWithoutAnyFilterThenSuccess() {
+    Department department = departmentRepository.findByName(DEPARTMENT_NAME);
+    Department financeDepartment = departmentRepository.save(Department.builder()
+        .name("finance")
+        .build());
+
+    List<Employee> employees = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      employees.add(generateEmployee("IT Employee " + i, department));
+      employees.add(generateEmployee("Finance Employee " + i, financeDepartment));
+    }
+    employeeRepository.saveAll(employees);
+
+    Response<List<EmployeeResponse>> response = client.get()
+        .uri("/api/employees/")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(new ParameterizedTypeReference<Response<List<EmployeeResponse>>>() {})
+        .returnResult()
+        .getResponseBody();
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertNull(response.getErrors());
+
+    Response.Pagination expectedPagination = Response.Pagination.builder()
+        .page(0)
+        .size(5L)
+        .totalItems(20L)
+        .build();
+    assertEquals(expectedPagination, response.getPagination());
+    assertEquals(5, response.getData().size());
+    assertEquals("IT Employee 0", response.getData().get(0).getName());
+    assertEquals("Finance Employee 0", response.getData().get(1).getName());
+    assertEquals("IT Employee 1", response.getData().get(2).getName());
+    assertEquals("Finance Employee 1", response.getData().get(3).getName());
+    assertEquals("IT Employee 2", response.getData().get(4).getName());
   }
 
   @Test
