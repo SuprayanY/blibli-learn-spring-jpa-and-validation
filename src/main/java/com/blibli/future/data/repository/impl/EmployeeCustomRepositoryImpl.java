@@ -46,7 +46,7 @@ public class EmployeeCustomRepositoryImpl implements EmployeeCustomRepository {
      *   ( -- if departmentKeyword is given
      *     LOWER(d.id) = {departmentKeyword}
      *     OR
-     *     LOWER(d.name) = '%{departmentKeyword}%'
+     *     LOWER(d.name) LIKE '%{departmentKeyword}%'
      *   )
      */
 
@@ -72,7 +72,7 @@ public class EmployeeCustomRepositoryImpl implements EmployeeCustomRepository {
     }
 
     if (StringUtils.hasText(filter.getDepartment())) {
-      // For multi conditions, enclose with braces
+      // For multi conditions, let them enclosed with parentheses
       criteriaList.add("(LOWER(d.id) = :department OR LOWER(d.name) LIKE :departmentContaining)");
       parameters.put("department", filter.getDepartment().toLowerCase());
       parameters.put("departmentContaining", String.format("%%%s%%", filter.getDepartment().toLowerCase()));
